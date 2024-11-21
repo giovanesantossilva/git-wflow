@@ -1,0 +1,42 @@
+#/bin/sh
+
+export GITWFLOW_DIR=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+
+usage() {
+	echo "usage: git wflow <subcommand>"
+    echo
+    echo "Available subcommands are:"
+    echo "- feature Manage your feature branches."
+}
+
+main() {
+    if [ $# -lt 1 ]; then
+		usage
+		exit 1
+	fi
+    # FLAGS_PARENT="git wflow"
+    SUBCOMMAND="$1"; shift
+    if [ ! -e "$GITWFLOW_DIR/git-wflow-$SUBCOMMAND" ]; then
+        usage
+        exit 1
+    fi
+    if [ $SUBCOMMAND = "feature" ]; then
+        . "$GITWFLOW_DIR/git-wflow-$SUBCOMMAND"
+        FEATURE_COMMAND="help"
+        # FLAGS_PARENT="git wflow $SUBCOMMAND"
+        if [ "$1" != "" ] && { ! echo "$1" | grep -q "^-"; } then
+		    FEATURE_COMMAND="$1"; shift
+	    fi
+        if [ $FEATURE_COMMAND = "help" ]; then
+            cmd_help
+        fi
+        if ! type "cmd_$FEATURE_COMMAND" > /dev/null 2>&1; then
+		    echo "Unknown subcommand: '$FEATURE_COMMAND'"
+		    usage
+		    exit 1
+	    fi
+        "cmd_$FEATURE_COMMAND" "$@"
+    fi
+}
+
+main "$@"

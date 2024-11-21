@@ -1,0 +1,25 @@
+usage() {
+	echo "usage: git flow feature [list]"
+	echo "- git flow feature start <name> [<base>]"
+	echo "- git flow feature finish [<name|nameprefix>]"
+}
+
+cmd_help() {
+	usage
+	exit 0
+}
+
+cmd_start() {
+	BASE="dev"
+	BRANCH="$1"
+	git checkout "$BASE"
+	git checkout -b "feature/$BRANCH"
+}
+
+cmd_finish() {
+	BASE="dev"
+	BRANCH="$1"
+	git checkout "$BASE"
+	git merge "feature/$BRANCH"
+	git branch -D "feature/$BRANCH"
+}
